@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+     <title>Graph</title>
+     <link rel="stylesheet" href="style.css">
+     <script src="https://unpkg.com/mathjs@10.5.0/lib/browser/math.js"></script> 
+</head>
+<body>
+     <div class="panel inline-block-child">
+          <canvas id="layer_0" width="600px" height="600px" style="position: absolute; z-index: 0; position: absolute;"></canvas>
+          <canvas id="layer_1" width="600px" height="600px" style="position: absolute; z-index: 1; position: absolute;"></canvas>
+     </div>
+
+     <div class="input inline-block-child">   
+          <div style="padding-bottom: 10px;"> X' = 
+               <input type="text" id="data_1"/><br>
+          </div>
+
+          <div style="padding-bottom: 10px;"> Y' =
+               <input type="text" id="data_2"/>
+          </div>
+          
+          <div style="padding-left: 80px;">
+               <button onclick="run()" id="button" >Run</button>
+          </div>
+     </div>
+     <script src="script.js"></script>
+</body>
+</html>
