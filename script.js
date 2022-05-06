@@ -5,8 +5,8 @@ var width = layer_0.width;
 var height = layer_0.height;
 
 
-document.getElementById('data_1').value = '-x-y';
-document.getElementById('data_2').value = 'x-y';
+document.getElementById('data_1').value = 'y^2';
+document.getElementById('data_2').value = 'x^2';
 
 var circle_arr = [];
 
@@ -21,8 +21,14 @@ var scale = 60.0;
 var colour_arr = ['#f368e0', '#ff9f43', '#ee5253', '#0abde3', '#1dd1a1', '#c8d6e5', '#feca57'];
 var rand_colour;
 
+var running;
+
+var rand_eqns_x = ['y^2', 'y-0.5*x', 'y', 'x+y', '-x+4*y', '-3*x', '4*x', '-2*x + 3*y', '2*x + 3*y'];
+var rand_eqns_y = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2*x - y', '-3*x - 2*y', '-3*x + 2*y'];
+
 function run() {
-    
+    running = true;
+    document.getElementById('button').innerText = 'Stop';
     rand_colour = colour_arr[Math.floor(Math.random() * colour_arr.length)];
 
     ctx_0.clearRect(0,0,width,height);
@@ -39,13 +45,28 @@ function run() {
         }
         animate();
     } else {
+        running = false;
+        document.getElementById('button').innerText = 'Run';
         circle_arr.length = 0;
     }
 
 }
 
+function rand_eqns() {
+    if (running) {
+        return;
+    }
+    var r = Math.floor(Math.random() * rand_eqns_x.length);
+    document.getElementById('data_1').value = rand_eqns_x[r];
+    document.getElementById('data_2').value = rand_eqns_y[r];
+}
+
 window.addEventListener('click', 
         function(event) {
+
+            if (!running) {
+                return;
+            }
 
             var mx = event.x - 10;
             var my = event.y - 10;
@@ -66,7 +87,7 @@ window.addEventListener('click',
                 x /= scale;
                 y /= scale;
     
-                h = 0.1;
+                h = 0.05;
                 
                 while(mx >= 0 && mx < width && my >= 0 && my < height) {
                     xi = x + i*t_x.evaluate({x,y}) * h;
