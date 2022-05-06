@@ -1,5 +1,5 @@
 body {
-     background: lightblue no-repeat fixed center;
+     background: rgb(198, 241, 221) no-repeat fixed center;
      font-family: 'Didact Gothic', sans-serif;
      margin: 8px;
 }
@@ -26,8 +26,12 @@ body {
 }
 
 #button{
-     width: 50px;
+     width: 75px;
 }
 .inline-block-child {
      display: inline-block;
-   }
+}
+
+.instructions{
+     padding-top: 20px;
+}
