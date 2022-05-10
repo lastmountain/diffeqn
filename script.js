@@ -1,12 +1,16 @@
 var layer_0 = document.getElementById('layer_0'), ctx_0 = layer_0.getContext('2d');
 var layer_1 = document.getElementById('layer_1'), ctx_1 = layer_1.getContext('2d');
 
+//ctx_1.canvas.height = window.innerWidth;
+
 var width = layer_0.width;
 var height = layer_0.height;
 
 
 document.getElementById('data_1').value = 'y^2';
 document.getElementById('data_2').value = 'x^2';
+
+
 
 var circle_arr = [];
 
@@ -40,7 +44,7 @@ function run() {
     t_y = g_dy.compile();
 
     if (circle_arr === undefined || circle_arr.length == 0) {
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < 200; i++) {
             circle_arr.push(new Circle(Math.random()*width, Math.random()* height));
         }
         animate();
@@ -119,16 +123,16 @@ window.addEventListener('click',
 
 function draw_grid() {
 
-    ctx_0.beginPath();
-    ctx_0.moveTo(width/2, 0);
-    ctx_0.lineTo(width/2, height);
-    ctx_0.lineWidth = 2;
-    ctx_0.strokeStyle = "gray";
-    ctx_0.stroke();
+    ctx_1.beginPath();
+    ctx_1.moveTo(width/2, 0);
+    ctx_1.lineTo(width/2, height);
+    ctx_1.lineWidth = 2;
+    ctx_1.strokeStyle = "gray";
+    ctx_1.stroke();
 
-    ctx_0.moveTo(0, height/2);
-    ctx_0.lineTo(width, height/2);
-    ctx_0.stroke();
+    ctx_1.moveTo(0, height/2);
+    ctx_1.lineTo(width, height/2);
+    ctx_1.stroke();
 }
 
 function animate() {
@@ -138,12 +142,14 @@ function animate() {
         requestAnimationFrame(animate);
     }   
     ctx_1.clearRect(0,0,width,height);
+    // ctx_1.fillStyle = 'rgba(0,0,0,0.4)';
+    // ctx_1.fillRect(0,0,width,height);
     
     for (var i = 0; i < circle_arr.length; i++) {
         circle_arr[i].update();
         if (circle_arr[i].coords.x < 0 || circle_arr[i].coords.x > width   || 
             circle_arr[i].coords.y < 0 || circle_arr[i].coords.y > height || 
-            (Math.abs(circle_arr[i].pos.dx) < 0.01 || Math.abs(circle_arr[i].pos.dy) < 0.01 ))  {
+            (Math.abs(circle_arr[i].pos.dx) < 0.01 && Math.abs(circle_arr[i].pos.dy) < 0.01 ))  {
                 circle_arr.splice(i, 1);
                 circle_arr.push(new Circle(Math.random()* width, Math.random()* height));
         }
@@ -172,7 +178,7 @@ function Circle(x,y) {
     this.draw = function() {
         ctx_1.beginPath();
         ctx_1.arc(this.coords.x, this.coords.y, 2.5,0,10,false);
-        ctx_1.strokeStyle = 'white';
+        //ctx_1.strokeStyle = 'white';
         ctx_1.fillStyle = rand_colour;
         ctx_1.stroke(); 
         ctx_1.fill();
@@ -194,5 +200,4 @@ function Circle(x,y) {
 
     }
 }
-
 //draw_grid();
