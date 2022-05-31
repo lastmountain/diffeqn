@@ -1,21 +1,23 @@
 var layer_0 = document.getElementById('layer_0'), ctx_0 = layer_0.getContext('2d');
 var layer_1 = document.getElementById('layer_1'), ctx_1 = layer_1.getContext('2d');
 
-//ctx_1.canvas.height = window.innerWidth;
+
 
 var width = layer_0.width;
 var height = layer_0.height;
 
+function onWindowResize() {
+    ctx_0.clearRect(0,0,width,height);
+    ctx_1.clearRect(0,0,width,height);
+    width = window.innerWidth/2;
+    height = window.innerHeight; 
 
-document.getElementById('data_1').value = 'y^2';
-document.getElementById('data_2').value = 'x^2';
+}
 
+//window.addEventListener('resize', onWindowResize, false);
 
 
 var circle_arr = [];
-
-var g_dx;
-var g_dy;
 
 var t_x;
 var t_y;
@@ -30,6 +32,16 @@ var running;
 var rand_eqns_x = ['y^2', 'y-0.5*x', 'y', 'x+y', '-x+4*y', '-3*x', '4*x', '-2*x + 3*y', '2*x + 3*y'];
 var rand_eqns_y = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2*x - y', '-3*x - 2*y', '-3*x + 2*y'];
 
+{
+    let a = Math.floor(Math.random() * rand_eqns_x.length);
+    document.getElementById('data_1').value = rand_eqns_x[a];
+    a = Math.floor(Math.random() * rand_eqns_x.length);
+    document.getElementById('data_2').value = rand_eqns_y[a];
+    // document.getElementById('data_1').value = 'x';
+    // document.getElementById('data_2').value = 'x';
+}
+
+
 function run() {
     running = true;
     document.getElementById('button').innerText = 'Stop';
@@ -37,15 +49,15 @@ function run() {
 
     ctx_0.clearRect(0,0,width,height);
 
-    g_dx = math.parse(document.getElementById('data_1').value);
-    g_dy = math.parse(document.getElementById('data_2').value);
+    var g_dx = math.parse(document.getElementById('data_1').value);
+    var g_dy = math.parse(document.getElementById('data_2').value);
 
     t_x = g_dx.compile();
     t_y = g_dy.compile();
 
     if (circle_arr === undefined || circle_arr.length == 0) {
         for (var i = 0; i < 200; i++) {
-            circle_arr.push(new Circle(Math.random()*width, Math.random()* height));
+            circle_arr.push(new Circle(Math.random()*width, Math.random()* height, rand_colour));
         }
         animate();
     } else {
@@ -60,8 +72,9 @@ function rand_eqns() {
     if (running) {
         return;
     }
-    var r = Math.floor(Math.random() * rand_eqns_x.length);
+    let r = Math.floor(Math.random() * rand_eqns_x.length);
     document.getElementById('data_1').value = rand_eqns_x[r];
+    r = Math.floor(Math.random() * rand_eqns_x.length);
     document.getElementById('data_2').value = rand_eqns_y[r];
 }
 
@@ -79,8 +92,12 @@ window.addEventListener('click',
                 return;
             }
 
-            var x, y, xi, yi, h;
-            //Eulers Method
+            var x, y, xn, yn, dt, dx, dy,h;
+            var KX_1, KY_1, KX_2, KY_2, KX_3, KY_3, KX_4, KY_4;
+            var tx,ty;
+            var done;
+
+            //Runge Kutta order 4
             for (var i = -1; i <= 1; i+= 2) {
                 mx = event.x - 10;
                 my = event.y - 10;
@@ -90,30 +107,71 @@ window.addEventListener('click',
     
                 x /= scale;
                 y /= scale;
-    
-                h = 0.05;
-                
-                while(mx >= 0 && mx < width && my >= 0 && my < height) {
-                    xi = x + i*t_x.evaluate({x,y}) * h;
-                    yi = y + i*t_y.evaluate({x,y}) * h;
 
-                    if (Math.abs(xi-x) < 0.001 && Math.abs(yi-y) < 0.001) {
-                        break;
+                xn = x;
+                yn = y;
+                h = 0.05;
+                dt = 0;
+
+                done = false;
+                
+                while(!done && dt < 4) {
+                    KX_1 = i*t_x.evaluate({x,y})*h;
+                    KY_1 = i*t_y.evaluate({x,y})*h;
+                    dt += h;
+                    // console.log(KX_1, KY_1);
+                    tx = x;
+                    ty = y;
+                    //console.log(dt);
+                    x = tx + 0.5*dt*KX_1;
+                    y = ty + 0.5*dt*KY_1;
+                    //console.log(x, y);
+                    KX_2 = i*t_x.evaluate({x,y})*h;
+                    KY_2 = i*t_y.evaluate({x,y})*h;
+                    //console.log(KX_2, KY_2);
+                    x = tx + 0.5*dt*KX_2;
+                    y = ty + 0.5*dt*KY_2;
+                    KX_3 = i*t_x.evaluate({x,y})*h;
+                    KY_3 = i*t_y.evaluate({x,y})*h;
+
+                    x = tx + dt*KX_3;
+                    y = ty + dt*KY_3;
+                    
+                    KX_4 = i*t_x.evaluate({x,y})*h;
+                    KY_4 = i*t_y.evaluate({x,y})*h;
+
+                    x = tx;
+                    y = ty;
+                    //console.log(tx, ty); 
+                    dx = (1/6)*dt*(KX_1 + 2*KX_2 + 2*KX_3 + KX_4);
+                    dy = (1/6)*dt*(KY_1 + 2*KY_2 + 2*KY_3 + KY_4);
+
+                    //console.log(dx, dy);
+
+                    xn += dx;
+                    yn += dy;
+
+                    // if (Math.abs(xn-x) < 0.001 && Math.abs(yn-y) < 0.001) {
+                    //     done = true;
+                    // }
+
+                    if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) {
+                        done = true;
                     }
-    
+                    //console.log(dx,dy);
                     mx = (x * scale) + 0.5*width;
                     my =  -1*(y * scale) + 0.5*height;
+                    console.log(mx, my);
     
                     ctx_0.beginPath();
                     ctx_0.moveTo(mx,my);
-                    ctx_0.lineTo(( xi * scale) +  0.5*width , -1*(yi * scale) + 0.5*height);
+                    ctx_0.lineTo(( xn * scale) +  0.5*width , -1*(yn * scale) + 0.5*height);
     
                     ctx_0.strokeStyle = 'white';
                     ctx_0.stroke();
     
-                    x = xi;
-                    y = yi;
-    
+                    x = xn;
+                    y = yn;
                 }
             }
 
@@ -151,12 +209,13 @@ function animate() {
             circle_arr[i].coords.y < 0 || circle_arr[i].coords.y > height || 
             (Math.abs(circle_arr[i].pos.dx) < 0.01 && Math.abs(circle_arr[i].pos.dy) < 0.01 ))  {
                 circle_arr.splice(i, 1);
-                circle_arr.push(new Circle(Math.random()* width, Math.random()* height));
+                circle_arr.push(new Circle(Math.random()* width, Math.random()* height, rand_colour));
         }
     }
 }
 
-function Circle(x,y) {
+
+function Circle(x,y, colour) {
     this.pos = {
         dx: x - 0.5*width,
         dy: -1*y + 0.5*height
@@ -172,6 +231,7 @@ function Circle(x,y) {
         y:0
     }
 
+    this.colour = colour;
     this.pos.dx /= scale;
     this.pos.dy /= scale;
     
@@ -179,7 +239,7 @@ function Circle(x,y) {
         ctx_1.beginPath();
         ctx_1.arc(this.coords.x, this.coords.y, 2.5,0,10,false);
         //ctx_1.strokeStyle = 'white';
-        ctx_1.fillStyle = rand_colour;
+        //ctx_1.fillStyle = rand_colour;
         ctx_1.stroke(); 
         ctx_1.fill();
     }
@@ -196,8 +256,34 @@ function Circle(x,y) {
         this.coords.x += this.pos.dx;
         this.coords.y -= this.pos.dy;
 
+        //ctx_1.fillStyle = shadeColor(this.colour, Math.abs(10*(this.pos.dx + this.pos.dy)));
+        ctx_1.fillStyle = this.colour;
         this.draw();
 
     }
 }
 //draw_grid();
+
+function shadeColor(color, percent) {
+    //console.log(color);
+    if (percent >= 100) {
+        percent = 100;
+    }
+    var R = parseInt(color.substring(1,3),16);
+    var G = parseInt(color.substring(3,5),16);
+    var B = parseInt(color.substring(5,7),16);
+
+    R = parseInt(R * (100 + percent) / 100);
+    G = parseInt(G * (100 + percent) / 100);
+    B = parseInt(B * (100 + percent) / 100);
+
+    R = (R<255)?R:255;  
+    G = (G<255)?G:255;  
+    B = (B<255)?B:255;  
+
+    var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+    var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+    var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+    return "#"+RR+GG+BB;
+}
