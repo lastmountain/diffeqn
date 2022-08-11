@@ -1,49 +1,45 @@
 body {
      background: rgb(15, 15, 15) no-repeat fixed center;
      font-family: 'Didact Gothic', sans-serif;
-     margin: 8px;
-}
-.panel{
-     background-color: rgb(15, 15, 15);
-     width: 600px;
-     height: 600px;
-     border: 2px solid rgb(74, 70, 70);
-     /* transform: rotate3d(0,1.5,1.25,15deg); */
 }
 
-#layer_0{
-     position: absolute;
-     z-index: 0;
+p {
+     color: white;
 }
 
-#layer_1{
-     position: absolute;
-     z-index: 1;
+#container{
+     display: inline-block;
+     border: 2px solid gray;
 }
 
 .input{
      vertical-align:top;
-     padding: 50px;
+     padding-top: 50px;
+     padding-left: 50px;
+     position: relative;
+     display: inline-block;
 }
 
-#data_1{
+#boxX,#boxY{ 
      padding: 5px;
      width: 150px;
+     background-color: rgb(50, 50, 50);
+     border: 1px solid gray;
+     color: white;
 }
 
-#data_2{
-     padding: 5px;
-     width: 150px;
+#buttons{
+     padding-left: 35px;
 }
 
 #button{
      width: 75px;
-}
-.inline-block-child {
-     display: inline-block;
+     border: 1px solid gray;
+     padding: 4px;
+     color: white;
+     background-color: rgb(50, 50, 50);
 }
 
-.instructions{
+#instructions{
      padding-top: 20px;
-     color: white;
 }

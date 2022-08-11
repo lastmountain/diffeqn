@@ -1,20 +1,60 @@
-var layer_0 = document.getElementById('layer_0'), ctx_0 = layer_0.getContext('2d');
-var layer_1 = document.getElementById('layer_1'), ctx_1 = layer_1.getContext('2d');
+var container = document.getElementById('container');
+
+var layer_0 = document.createElement('canvas'), ctx_0 = layer_0.getContext('2d');
+var layer_1 = document.createElement('canvas'), ctx_1 = layer_1.getContext('2d');
 
 
 
-var width = layer_0.width;
-var height = layer_0.height;
+var width;
+var height;
 
-function onWindowResize() {
-    ctx_0.clearRect(0,0,width,height);
-    ctx_1.clearRect(0,0,width,height);
-    width = window.innerWidth/2;
-    height = window.innerHeight; 
+window.onload = function() {
+     console.log('loading');
 
+     container.style.position = "relative";
+
+     layer_0.style.position = "absolute";
+     layer_1.style.position = "absolute";
+
+     layer_0.style.background = "black";
+     layer_1.style.background = "black";
+
+     layer_0.style.zIndex = "0";
+     layer_1.style.zIndex = "1";
+
+     container.appendChild(layer_0);
+     container.appendChild(layer_1);
+
+     resizeCanvas();
 }
 
-//window.addEventListener('resize', onWindowResize, false);
+window.onresize = function() {
+     console.log('resizing');
+     resizeCanvas();
+}
+
+function resizeCanvas() {
+     width = window.innerWidth;
+     height = window.innerHeight;
+
+     if (width >= height) {
+          width /= 2;
+          height -= 16;
+     } else {
+          width -= 16;
+          height /= 2;
+     }
+
+     layer_0.width = width;
+     layer_1.width = width;
+
+     layer_0.height = height;
+     layer_1.height = height;
+
+     container.style.width = width + 'px';
+     container.style.height = height + 'px';
+
+}
 
 
 var circle_arr = [];
@@ -34,13 +74,10 @@ var rand_eqns_y = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2
 
 {
     let a = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('data_1').value = rand_eqns_x[a];
+    document.getElementById('boxX').value = rand_eqns_x[a];
     a = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('data_2').value = rand_eqns_y[a];
-    // document.getElementById('data_1').value = 'x';
-    // document.getElementById('data_2').value = 'x';
+    document.getElementById('boxY').value = rand_eqns_y[a];
 }
-
 
 function run() {
     running = true;
@@ -49,8 +86,8 @@ function run() {
 
     ctx_0.clearRect(0,0,width,height);
 
-    var g_dx = math.parse(document.getElementById('data_1').value);
-    var g_dy = math.parse(document.getElementById('data_2').value);
+    var g_dx = math.parse(document.getElementById('boxX').value);
+    var g_dy = math.parse(document.getElementById('boxY').value);
 
     t_x = g_dx.compile();
     t_y = g_dy.compile();
@@ -73,14 +110,14 @@ function rand_eqns() {
         return;
     }
     let r = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('data_1').value = rand_eqns_x[r];
+    document.getElementById('boxX').value = rand_eqns_x[r];
     r = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('data_2').value = rand_eqns_y[r];
+    document.getElementById('boxY').value = rand_eqns_y[r];
 }
 
-window.addEventListener('click', 
+layer_1.addEventListener('click', 
         function(event) {
-
+            //alert(event.x + "," + event.y);
             if (!running) {
                 return;
             }
@@ -161,7 +198,7 @@ window.addEventListener('click',
                     //console.log(dx,dy);
                     mx = (x * scale) + 0.5*width;
                     my =  -1*(y * scale) + 0.5*height;
-                    console.log(mx, my);
+                    //console.log(mx, my);
     
                     ctx_0.beginPath();
                     ctx_0.moveTo(mx,my);
@@ -263,7 +300,7 @@ function Circle(x,y, colour) {
     }
 }
 //draw_grid();
-
+//from stackoverflow
 function shadeColor(color, percent) {
     //console.log(color);
     if (percent >= 100) {

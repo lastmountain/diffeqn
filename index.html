@@ -3,29 +3,23 @@
 <html lang="en">
 <head>
      <title>Graph</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="stylesheet" href="style.css">
      <script src="https://unpkg.com/mathjs@10.5.0/lib/browser/math.js"></script> 
 </head>
 <body>
-     <div class="panel inline-block-child">
-          <canvas id="layer_0" width="600" height="600"></canvas>
-          <canvas id="layer_1" width="600" height="600"></canvas>
-     </div>
-
-     <div class="input inline-block-child">   
-          <div style="padding-bottom: 10px; color: white;"> X' = 
-               <input type="text" id="data_1"/><br>
-          </div>
-
-          <div style="padding-bottom: 10px; color:white;"> Y' =
-               <input type="text" id="data_2"/>
-          </div>
+     <div id="container"></div>
+     <div class="input">   
+          <p> X' = <input type="text" id="boxX"> <br> </p> 
+          <p> Y' = <input type="text" id="boxY"> <br> </p> 
           
-          <div style="padding-left: 35px;">
-               <button onclick="run()" id="button" >Run</button>
-               <button onclick="rand_eqns()" id="button" >Random</button>
+          <div id="buttons">
+               <button id="button" onclick="run()">Run</button>
+               <button id="button" onclick="rand_eqns()">Random</button>
           </div>
-          <div class="instructions"> Click on the plot to draw trajectories after running.</div>
+          <div id="instructions"> 
+               <p> Click on the plot to draw trajectories after running.</p>
+          </div>
      </div>
      <script src="script.js"></script>
 </body>
