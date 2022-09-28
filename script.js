@@ -16,9 +16,6 @@ window.onload = function() {
      layer_0.style.position = "absolute";
      layer_1.style.position = "absolute";
 
-     layer_0.style.background = "black";
-     layer_1.style.background = "black";
-
      layer_0.style.zIndex = "0";
      layer_1.style.zIndex = "1";
 
@@ -37,7 +34,7 @@ function resizeCanvas() {
      width = window.innerWidth;
      height = window.innerHeight;
 
-     if (width >= height) {
+     if (width >= (16/9)*height) {
           width /= 2;
           height -= 16;
      } else {
@@ -122,13 +119,11 @@ layer_1.addEventListener('click',
                 return;
             }
 
-            var mx = event.x - 10;
-            var my = event.y - 10;
-
-            if (mx < 0 || mx > width || my < 0 || my > height) {
-                return;
-            }
-
+            var mx = event.x;
+            var my = event.y;
+            // if (mx < 0 || mx > width || my < 0 || my > height) {
+            //     return;
+            // }
             var x, y, xn, yn, dt, dx, dy,h;
             var KX_1, KY_1, KX_2, KY_2, KX_3, KY_3, KX_4, KY_4;
             var tx,ty;
@@ -136,8 +131,8 @@ layer_1.addEventListener('click',
 
             //Runge Kutta order 4
             for (var i = -1; i <= 1; i+= 2) {
-                mx = event.x - 10;
-                my = event.y - 10;
+                mx = event.x;
+                my = event.y;
 
                 x = (event.x - 10) - 0.5*width;
                 y = -1*(event.y - 10) + 0.5*height;
@@ -152,7 +147,7 @@ layer_1.addEventListener('click',
 
                 done = false;
                 
-                while(!done && dt < 4) {
+                while(!done && dt < 5) {
                     KX_1 = i*t_x.evaluate({x,y})*h;
                     KY_1 = i*t_y.evaluate({x,y})*h;
                     dt += h;
@@ -162,7 +157,7 @@ layer_1.addEventListener('click',
                     //console.log(dt);
                     x = tx + 0.5*dt*KX_1;
                     y = ty + 0.5*dt*KY_1;
-                    //console.log(x, y);
+                    // console.log(x, y);
                     KX_2 = i*t_x.evaluate({x,y})*h;
                     KY_2 = i*t_y.evaluate({x,y})*h;
                     //console.log(KX_2, KY_2);
@@ -300,7 +295,7 @@ function Circle(x,y, colour) {
     }
 }
 //draw_grid();
-//from stackoverflow
+//from stackoverflow, unused for now
 function shadeColor(color, percent) {
     //console.log(color);
     if (percent >= 100) {
