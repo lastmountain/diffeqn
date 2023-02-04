@@ -1,7 +1,15 @@
+import {Point} from "./Point.js";
+
 var container = document.getElementById('container');
 
 var layer_0 = document.createElement('canvas'), ctx_0 = layer_0.getContext('2d');
 var layer_1 = document.createElement('canvas'), ctx_1 = layer_1.getContext('2d');
+
+var testLayer = document.createElement('canvas');
+var testContext = testLayer.getContext('2d');
+
+document.getElementById('button1').addEventListener("click", run);
+document.getElementById('button2').addEventListener("click", rand_eqns);
 
 var width;
 var height;
@@ -13,12 +21,15 @@ window.onload = function() {
 
      layer_0.style.position = "absolute";
      layer_1.style.position = "absolute";
+     testLayer.style.position = "absolute";
 
      layer_0.style.zIndex = "0";
      layer_1.style.zIndex = "1";
+     testLayer.style.zIndex = "2";
 
      container.appendChild(layer_0);
      container.appendChild(layer_1);
+     container.appendChild(testLayer);
 
      resizeCanvas();
 }
@@ -26,6 +37,7 @@ window.onload = function() {
 window.onresize = function() {
      console.log('resizing');
      resizeCanvas();
+ 
 }
 
 function resizeCanvas() {
@@ -42,9 +54,13 @@ function resizeCanvas() {
 
      layer_0.width = width;
      layer_1.width = width;
+     testLayer.width = width;
 
      layer_0.height = height;
      layer_1.height = height;
+     testLayer.height = height;
+
+    testContext.transform(1,0,0,-1,0.5*width, 0.5*height);
 
      container.style.width = width + 'px';
      container.style.height = height + 'px';
@@ -53,9 +69,6 @@ function resizeCanvas() {
 
 
 var circle_arr = [];
-
-var t_x;
-var t_y;
 
 var scale = 60.0;
 
@@ -75,26 +88,22 @@ var rand_eqns_y = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2
 }
 
 function run() {
+    console.log("runnung");
     running = true;
-    document.getElementById('button').innerText = 'Stop';
+    document.getElementById('button1').innerText = 'Stop';
     rand_colour = colour_arr[Math.floor(Math.random() * colour_arr.length)];
 
     ctx_0.clearRect(0,0,width,height);
 
-    var g_dx = math.parse(document.getElementById('boxX').value);
-    var g_dy = math.parse(document.getElementById('boxY').value);
-
-    t_x = g_dx.compile();
-    t_y = g_dy.compile();
-
     if (circle_arr === undefined || circle_arr.length == 0) {
         for (var i = 0; i < 200; i++) {
-            circle_arr.push(new Circle(Math.random()*width, Math.random()* height, rand_colour));
+            // circle_arr.push(new Circle(Math.random()*width, Math.random()* height, rand_colour));
+            circle_arr.push(new Point(getRandomCoordinate(), 2.5, rand_colour, testContext));
         }
         animate();
     } else {
         running = false;
-        document.getElementById('button').innerText = 'Run';
+        document.getElementById('button1').innerText = 'Run';
         circle_arr.length = 0;
     }
 
@@ -111,7 +120,13 @@ function rand_eqns() {
     document.getElementById('boxY').value = rand_eqns_y[r];
 }
 
-layer_1.addEventListener('click', 
+function getRandomCoordinate() {
+    const x = (Math.random() * width) - 0.5*width;
+    const y = (Math.random()*height - 0.5*height);
+    return {x: x, y: y};
+}
+
+layer_0.addEventListener('click', 
         function(event) {
             //alert(event.x + "," + event.y);
             if (!running) {
@@ -229,68 +244,80 @@ function animate() {
         return;
     } else {
         requestAnimationFrame(animate);
-    }   
-    ctx_1.clearRect(0,0,width,height);
-    // ctx_1.fillStyle = 'rgba(0,0,0,0.4)';
-    // ctx_1.fillRect(0,0,width,height);
-    
+    }
+    // Store the current transformation matrix
+    testContext.save();
+
+    // Use the identity matrix while clearing the canvas
+    testContext.setTransform(1, 0, 0, 1, 0, 0);
+    testContext.clearRect(0, 0, testContext.canvas.width, testContext.canvas.height);
+
+    // Restore the transform
+    testContext.restore();
     for (var i = 0; i < circle_arr.length; i++) {
-        circle_arr[i].update();
-        if (circle_arr[i].coords.x < 0 || circle_arr[i].coords.x > width   || 
-            circle_arr[i].coords.y < 0 || circle_arr[i].coords.y > height || 
-            (Math.abs(circle_arr[i].pos.dx) < 0.01 && Math.abs(circle_arr[i].pos.dy) < 0.01 ))  {
+
+        const pointPosition = circle_arr[i].getPosition();
+        if (!isPointInContext(pointPosition))  {
                 circle_arr.splice(i, 1);
-                circle_arr.push(new Circle(Math.random()* width, Math.random()* height, rand_colour));
+        } else {
+            const dx = math.evaluate(document.getElementById('boxX').value, pointPosition) / scale;
+            const dy = math.evaluate(document.getElementById('boxY').value, pointPosition) / scale;
+            circle_arr[i].updatePosition(dx,dy);
         }
     }
+
 }
 
+function isPointInContext(pos) {
+    return pos.x > -1*width / 2 && pos.x < width /2 && 
+    pos.y > -1*height / 2 && pos.y < height / 2;
+}
 
-function Circle(x,y, colour) {
-    this.pos = {
-        dx: x - 0.5*width,
-        dy: -1*y + 0.5*height
-    }
+// function Circle(x,y, colour) {
+//     this.pos = {
+//         dx: x - 0.5*width,
+//         dy: -1*y + 0.5*height
+//     }
 
-    this.coords = {
-        x: x,
-        y: y
-    }
+//     this.coords = {
+//         x: x,
+//         y: y
+//     }
 
-    this.scope = {
-        x:0,
-        y:0
-    }
+//     this.scope = {
+//         x:0,
+//         y:0
+//     }
 
-    this.colour = colour;
-    this.pos.dx /= scale;
-    this.pos.dy /= scale;
+//     this.colour = colour;
+//     this.pos.dx /= scale;
+//     this.pos.dy /= scale;
     
-    this.draw = function() {
-        ctx_1.beginPath();
-        ctx_1.arc(this.coords.x, this.coords.y, 2.5,0,10,false);
-        //ctx_1.strokeStyle = 'white';
-        //ctx_1.fillStyle = rand_colour;
-        ctx_1.stroke(); 
-        ctx_1.fill();
-    }
+//     this.draw = function() {
+//         ctx_1.beginPath();
+//         ctx_1.arc(this.coords.x, this.coords.y, 2.5,0,10,false);
+//         //ctx_1.strokeStyle = 'white';
+//         //ctx_1.fillStyle = rand_colour;
+//         ctx_1.stroke(); 
+//         ctx_1.fill();
+//     }
 
-    this.update = function() {
+//     this.update = function() {
 
-        this.scope.x = (this.coords.x - 0.5*width)/scale;
-        this.scope.y = (-1*this.coords.y + 0.5*height)/scale;
+//         this.scope.x = (this.coords.x - 0.5*width)/scale;
+//         this.scope.y = (-1*this.coords.y + 0.5*height)/scale;
 
 
-        this.pos.dx = t_x.evaluate(this.scope);
-        this.pos.dy = t_y.evaluate(this.scope);
+//         this.pos.dx = t_x.evaluate(this.scope);
+//         this.pos.dy = t_y.evaluate(this.scope);
 
-        this.coords.x += this.pos.dx;
-        this.coords.y -= this.pos.dy;
+//         this.coords.x += this.pos.dx;
+//         this.coords.y -= this.pos.dy;
 
-        //ctx_1.fillStyle = shadeColor(this.colour, Math.abs(10*(this.pos.dx + this.pos.dy)));
-        ctx_1.fillStyle = this.colour;
-        this.draw();
+//         //ctx_1.fillStyle = shadeColor(this.colour, Math.abs(10*(this.pos.dx + this.pos.dy)));
+//         ctx_1.fillStyle = this.colour;
+//         this.draw();
 
-    }
-}
+//     }
+// }
 //draw_grid();

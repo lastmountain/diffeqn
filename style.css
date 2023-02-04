@@ -32,7 +32,7 @@ p {
      padding-left: 35px;
 }
 
-#button{
+#button1, #button2{
      width: 75px;
      border: 1px solid gray;
      padding: 4px;
