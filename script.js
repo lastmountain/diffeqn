@@ -28,7 +28,6 @@ window.onload = function() {
      console.log('loading');
 
      container.style.position = "relative";
-
      layer_0.style.position = "absolute";
      layer_1.style.position = "absolute";
      testLayer.style.position = "absolute";
@@ -154,7 +153,6 @@ testLayer.addEventListener('click',
             var drawer = new PathDrawer(document.getElementById('boxX').value, document.getElementById('boxY').value, ctx_0, 60);
             drawer.updateEqns({x: document.getElementById('boxX').value, y: document.getElementById('boxY').value});
             drawer.draw(event.x - width/2, height/2 - event.y);
-            // console.log(drawer);
         });
 
 
