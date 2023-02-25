@@ -1,18 +1,28 @@
+import { PathDrawer } from "./PathDrawer.js";
 import {Point} from "./Point.js";
 
-var container = document.getElementById('container');
+var container;
+var layer_0, layer_1;
+var testLayer;
+var ctx_0, ctx_1;
+var testContext;
+var width, height;
 
-var layer_0 = document.createElement('canvas'), ctx_0 = layer_0.getContext('2d');
-var layer_1 = document.createElement('canvas'), ctx_1 = layer_1.getContext('2d');
+function setUpCanvas() {
+    container = document.getElementById('container');
 
-var testLayer = document.createElement('canvas');
-var testContext = testLayer.getContext('2d');
+    layer_0 = document.createElement('canvas');
+    ctx_0 = layer_0.getContext('2d');
+    layer_1 = document.createElement('canvas')
+    ctx_1 = layer_1.getContext('2d');
+    testLayer = document.createElement('canvas');
+    testContext = testLayer.getContext('2d');
+    
+    document.getElementById('button1').addEventListener("click", run);
+    document.getElementById('button2').addEventListener("click", randomizeEquations);
 
-document.getElementById('button1').addEventListener("click", run);
-document.getElementById('button2').addEventListener("click", rand_eqns);
-
-var width;
-var height;
+}
+setUpCanvas();
 
 window.onload = function() {
      console.log('loading');
@@ -30,7 +40,6 @@ window.onload = function() {
      container.appendChild(layer_0);
      container.appendChild(layer_1);
      container.appendChild(testLayer);
-
      resizeCanvas();
 }
 
@@ -61,63 +70,72 @@ function resizeCanvas() {
      testLayer.height = height;
 
     testContext.transform(1,0,0,-1,0.5*width, 0.5*height);
+    ctx_0.transform(1,0,0,-1,0.5*width, 0.5*height);
 
-     container.style.width = width + 'px';
-     container.style.height = height + 'px';
+    container.style.width = width + 'px';
+    container.style.height = height + 'px';
 
 }
 
 
-var circle_arr = [];
-
-var scale = 60.0;
-
-var colour_arr = ['#f368e0', '#ff9f43', '#ee5253', '#0abde3', '#1dd1a1', '#c8d6e5', '#feca57'];
+var PointArray;
+var scale;
+var ColourArray;
 var rand_colour;
+var isRunning;
 
-var running;
+var randEqnsX;
+var randEqnsY;
 
-var rand_eqns_x = ['y^2', 'y-0.5*x', 'y', 'x+y', '-x+4*y', '-3*x', '4*x', '-2*x + 3*y', '2*x + 3*y'];
-var rand_eqns_y = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2*x - y', '-3*x - 2*y', '-3*x + 2*y'];
+// var drawer = new PathDrawer(document.getElementById('boxX').value, document.getElementById('boxY').value, ctx_0, 60);
 
-{
-    let a = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('boxX').value = rand_eqns_x[a];
-    a = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('boxY').value = rand_eqns_y[a];
+function setUpDrawingVars() {
+    PointArray = [];
+    scale = 60.0;
+    ColourArray = ['#f368e0', '#ff9f43', '#ee5253', '#0abde3', '#1dd1a1', '#c8d6e5', '#feca57'];
+    rand_colour;
+    isRunning;
+    
+    randEqnsX = ['y^2', 'y-0.5*x', 'y', 'x+y', '-x+4*y', '-3*x', '4*x', '-2*x + 3*y', '2*x + 3*y'];
+    randEqnsY = ['x^2', 'sin(x)', '-2*x', 'x-y', '-2*x + 5*y', '3*x - 2*y', '2*x - y', '-3*x - 2*y', '-3*x + 2*y'];
+    
+    let a = Math.floor(Math.random() * randEqnsX.length);
+    document.getElementById('boxX').value = randEqnsX[a];
+    a = Math.floor(Math.random() * randEqnsX.length);
+    document.getElementById('boxY').value = randEqnsY[a];
+
 }
+setUpDrawingVars();
 
 function run() {
     console.log("runnung");
-    running = true;
+    isRunning = true;
     document.getElementById('button1').innerText = 'Stop';
-    rand_colour = colour_arr[Math.floor(Math.random() * colour_arr.length)];
+    rand_colour = ColourArray[Math.floor(Math.random() * ColourArray.length)];
+    ctx_0.clearRect(-1/2*width,-1/2*height,width,height);
 
-    ctx_0.clearRect(0,0,width,height);
-
-    if (circle_arr === undefined || circle_arr.length == 0) {
+    if (PointArray === undefined || PointArray.length == 0) {
         for (var i = 0; i < 200; i++) {
-            // circle_arr.push(new Circle(Math.random()*width, Math.random()* height, rand_colour));
-            circle_arr.push(new Point(getRandomCoordinate(), 2.5, rand_colour, testContext));
+            PointArray.push(new Point(getRandomCoordinate(), 2.5, rand_colour, testContext));
         }
         animate();
     } else {
-        running = false;
+        isRunning = false;
         document.getElementById('button1').innerText = 'Run';
-        circle_arr.length = 0;
+        PointArray.length = 0;
     }
 
 }
 
-function rand_eqns() {
-    if (running) {
+function randomizeEquations() {
+    if (isRunning) {
         alert("First Stop the current rendering.");
         return;
     }
-    let r = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('boxX').value = rand_eqns_x[r];
-    r = Math.floor(Math.random() * rand_eqns_x.length);
-    document.getElementById('boxY').value = rand_eqns_y[r];
+    let r = Math.floor(Math.random() * randEqnsX.length);
+    document.getElementById('boxX').value = randEqnsX[r];
+    r = Math.floor(Math.random() * randEqnsX.length);
+    document.getElementById('boxY').value = randEqnsY[r];
 }
 
 function getRandomCoordinate() {
@@ -126,101 +144,17 @@ function getRandomCoordinate() {
     return {x: x, y: y};
 }
 
-layer_0.addEventListener('click', 
+testLayer.addEventListener('click', 
         function(event) {
-            //alert(event.x + "," + event.y);
-            if (!running) {
+            if (!isRunning) {
                 return;
             }
-
-            var mx = event.x;
-            var my = event.y;
-            // if (mx < 0 || mx > width || my < 0 || my > height) {
-            //     return;
-            // }
-            var x, y, xn, yn, dt, dx, dy,h;
-            var KX_1, KY_1, KX_2, KY_2, KX_3, KY_3, KX_4, KY_4;
-            var tx,ty;
-            var done;
-
-            //Runge Kutta order 4
-            for (var i = -1; i <= 1; i+= 2) {
-                mx = event.x;
-                my = event.y;
-
-                x = (event.x - 10) - 0.5*width;
-                y = -1*(event.y - 10) + 0.5*height;
-    
-                x /= scale;
-                y /= scale;
-
-                xn = x;
-                yn = y;
-                h = 0.05;
-                dt = 0;
-
-                done = false;
-                
-                while(!done && dt < 5) {
-                    KX_1 = i*t_x.evaluate({x,y})*h;
-                    KY_1 = i*t_y.evaluate({x,y})*h;
-                    dt += h;
-                    // console.log(KX_1, KY_1);
-                    tx = x;
-                    ty = y;
-                    //console.log(dt);
-                    x = tx + 0.5*dt*KX_1;
-                    y = ty + 0.5*dt*KY_1;
-                    // console.log(x, y);
-                    KX_2 = i*t_x.evaluate({x,y})*h;
-                    KY_2 = i*t_y.evaluate({x,y})*h;
-                    //console.log(KX_2, KY_2);
-                    x = tx + 0.5*dt*KX_2;
-                    y = ty + 0.5*dt*KY_2;
-                    KX_3 = i*t_x.evaluate({x,y})*h;
-                    KY_3 = i*t_y.evaluate({x,y})*h;
-
-                    x = tx + dt*KX_3;
-                    y = ty + dt*KY_3;
-                    
-                    KX_4 = i*t_x.evaluate({x,y})*h;
-                    KY_4 = i*t_y.evaluate({x,y})*h;
-
-                    x = tx;
-                    y = ty;
-                    //console.log(tx, ty); 
-                    dx = (1/6)*dt*(KX_1 + 2*KX_2 + 2*KX_3 + KX_4);
-                    dy = (1/6)*dt*(KY_1 + 2*KY_2 + 2*KY_3 + KY_4);
-
-                    //console.log(dx, dy);
-
-                    xn += dx;
-                    yn += dy;
-
-                    // if (Math.abs(xn-x) < 0.001 && Math.abs(yn-y) < 0.001) {
-                    //     done = true;
-                    // }
-
-                    if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) {
-                        done = true;
-                    }
-                    //console.log(dx,dy);
-                    mx = (x * scale) + 0.5*width;
-                    my =  -1*(y * scale) + 0.5*height;
-                    //console.log(mx, my);
-    
-                    ctx_0.beginPath();
-                    ctx_0.moveTo(mx,my);
-                    ctx_0.lineTo(( xn * scale) +  0.5*width , -1*(yn * scale) + 0.5*height);
-    
-                    ctx_0.strokeStyle = 'white';
-                    ctx_0.stroke();
-    
-                    x = xn;
-                    y = yn;
-                }
-            }
-
+            //  TODO
+            //  Fix this later
+            var drawer = new PathDrawer(document.getElementById('boxX').value, document.getElementById('boxY').value, ctx_0, 60);
+            drawer.updateEqns({x: document.getElementById('boxX').value, y: document.getElementById('boxY').value});
+            drawer.draw(event.x - width/2, height/2 - event.y);
+            // console.log(drawer);
         });
 
 
@@ -240,29 +174,35 @@ function draw_grid() {
 }
 
 function animate() {
-    if (circle_arr.length == 0) {
+    if (PointArray.length == 0) {
         return;
     } else {
         requestAnimationFrame(animate);
     }
-    // Store the current transformation matrix
+    // TODO
+    // Make this better later
     testContext.save();
-
-    // Use the identity matrix while clearing the canvas
     testContext.setTransform(1, 0, 0, 1, 0, 0);
     testContext.clearRect(0, 0, testContext.canvas.width, testContext.canvas.height);
-
-    // Restore the transform
     testContext.restore();
-    for (var i = 0; i < circle_arr.length; i++) {
 
-        const pointPosition = circle_arr[i].getPosition();
+    for (let i = 0; i < PointArray.length; i++) {
+
+        const pointPosition = PointArray[i].getPosition();
         if (!isPointInContext(pointPosition))  {
-                circle_arr.splice(i, 1);
+                const random_coord = getRandomCoordinate();
+                PointArray[i].resetPoint(random_coord);
+                
         } else {
-            const dx = math.evaluate(document.getElementById('boxX').value, pointPosition) / scale;
-            const dy = math.evaluate(document.getElementById('boxY').value, pointPosition) / scale;
-            circle_arr[i].updatePosition(dx,dy);
+            const dx = math.evaluate(document.getElementById('boxX').value, {x: pointPosition.x / scale, y: pointPosition.y / scale});
+            const dy = math.evaluate(document.getElementById('boxY').value, {x: pointPosition.x / scale, y: pointPosition.y / scale});
+            if (isPointTooSlow(dx,dy)) {
+                const random_coord = getRandomCoordinate();
+                PointArray[i].resetPoint(random_coord);
+            } else {
+                PointArray[i].updatePosition(dx,dy);
+            }
+            
         }
     }
 
@@ -273,51 +213,6 @@ function isPointInContext(pos) {
     pos.y > -1*height / 2 && pos.y < height / 2;
 }
 
-// function Circle(x,y, colour) {
-//     this.pos = {
-//         dx: x - 0.5*width,
-//         dy: -1*y + 0.5*height
-//     }
-
-//     this.coords = {
-//         x: x,
-//         y: y
-//     }
-
-//     this.scope = {
-//         x:0,
-//         y:0
-//     }
-
-//     this.colour = colour;
-//     this.pos.dx /= scale;
-//     this.pos.dy /= scale;
-    
-//     this.draw = function() {
-//         ctx_1.beginPath();
-//         ctx_1.arc(this.coords.x, this.coords.y, 2.5,0,10,false);
-//         //ctx_1.strokeStyle = 'white';
-//         //ctx_1.fillStyle = rand_colour;
-//         ctx_1.stroke(); 
-//         ctx_1.fill();
-//     }
-
-//     this.update = function() {
-
-//         this.scope.x = (this.coords.x - 0.5*width)/scale;
-//         this.scope.y = (-1*this.coords.y + 0.5*height)/scale;
-
-
-//         this.pos.dx = t_x.evaluate(this.scope);
-//         this.pos.dy = t_y.evaluate(this.scope);
-
-//         this.coords.x += this.pos.dx;
-//         this.coords.y -= this.pos.dy;
-
-//         //ctx_1.fillStyle = shadeColor(this.colour, Math.abs(10*(this.pos.dx + this.pos.dy)));
-//         ctx_1.fillStyle = this.colour;
-//         this.draw();
-
-//     }
-// }
-//draw_grid();
+function isPointTooSlow(dx, dy) {
+    return Math.abs(dx) < 1 / (scale) && Math.abs(dy) < 1 / (scale);
+}
